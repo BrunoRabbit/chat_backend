@@ -1,0 +1,14 @@
+{
+    "mysql": {
+        "database": "chat_backend",
+        "user": "root",
+        "password": "",
+        "host": "127.0.0.1"
+    },
+    "jwt": {
+        "key_secret": "JWT_NOT_TOO_SECRET_KEY"
+    },
+    "api": {
+        "port": 3000
+    }
+}
