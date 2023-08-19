@@ -1,6 +1,6 @@
 const Model = require('./model_user');
-const ErrorGenerator = require('../errors/errors_generator');
-const errorsDefault = require('../errors/errors_message');
+const ErrorGenerator = require('../../errors/errors_generator');
+const errorsDefault = require('../../errors/errors_message');
 
 module.exports = {
   insert(user) {

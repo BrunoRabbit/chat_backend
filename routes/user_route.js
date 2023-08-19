@@ -1,10 +1,11 @@
 const router = require('express').Router();
-const User = require('../auth/user');
+const User = require('../src/auth/user');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const authenticateToken = require('../api/middleware/auth_middleware');
+const upload = require('../api/middleware/images_middleware');
 
-router.post('/', async (req, res) => {
+router.post('/', upload.single('photo'), async (req, res) => {
   try {
     const receiveData = await req.body;
     const user = new User(receiveData);
@@ -39,18 +40,23 @@ router.post('/verify-token', async (req, res) => {
     }
 
     jwt.verify(token, config.jwt.key_secret, async (err, decodedToken) => {
-      if (err) {
-        return res.status(401).send('Invalid token');
-      }
+      try {
+        if (err) {
+          return res.status(401).send('Invalid token');
+        }
 
-      const userId = decodedToken.id;
-      const user = new User({ id: userId });
-      const obj = await user.findStoredTokenByID();
+        const userId = decodedToken.id;
 
-      const storedToken = obj['token'];
+        const user = new User({ id: userId });
+        const obj = await user.findStoredTokenByID();
 
-      if (storedToken !== null && storedToken === token) {
-        return res.status(200).json({ token, user });
+        const storedToken = obj['token'];
+
+        if (storedToken !== null && storedToken === token) {
+          return res.status(200).json({ token, user });
+        }
+      } catch (error) {
+        res.status(error.code).json(error);
       }
     });
 
@@ -78,7 +84,6 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-
 function _createToken(user) {
   const token = jwt.sign({ id: user.id }, config.jwt.key_secret, { expiresIn: '2h' });
 
@@ -101,21 +106,5 @@ router.put('/:idUser', authenticateToken, async (req, res, next) => {
     res.status(error.code).json(error)
   }
 });
-
-// router.delete('/delete', authenticateToken, async (req, res, next) => {
-//   try {
-//     const email = await req.body.email;
-//     const password = await req.body.password;
-
-//     const user = new User({ email, password });
-//     await user.load();
-//     await user.remove();
-
-//     res.status(204);
-//     res.end();
-//   } catch (error) {
-//     res.status(error.code).json(error)
-//   }
-// });
 
 module.exports = router;

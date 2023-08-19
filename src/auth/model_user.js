@@ -1,14 +1,6 @@
 const Sequelize = require('sequelize');
-const instance = require('../db');
-// salt: {
-//     type: Sequelize.STRING,
-//     allowNull: true,
-//   },
-// isAdmin: {
-//     type: Sequelize.BOOLEAN,
-//     allowNull: true,
-//     defaultValue: true,
-// },
+const instance = require('../../db');
+
 const columns = {
     name: {
         type: Sequelize.STRING,
@@ -30,6 +22,9 @@ const columns = {
     lastLogin: {
         type: Sequelize.DATE,
         allowNull: true,
+    },
+    photo: {
+        type: Sequelize.STRING,
     }
 };
 

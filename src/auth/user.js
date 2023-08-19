@@ -1,17 +1,7 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const errorsDefault = require('../errors/errors_message');
-const ErrorGenerator = require('../errors/errors_generator');
+const errorsDefault = require('../../errors/errors_message');
+const ErrorGenerator = require('../../errors/errors_generator');
 const TableUser = require('./table_user');
 const moment = require('moment');
-// function encryptWithSalt(password, salt) {
-//     return CryptoJS.AES.encrypt(password, salt).toString();
-// }
-
-// function decryptWithSalt(password, salt) {
-//     const bytes = CryptoJS.AES.decrypt(password, salt);
-//     return bytes.toString(CryptoJS.enc.Utf8).toString();
-// }
 
 class User {
     constructor({ id, name, password, photo, email }) {
@@ -23,7 +13,6 @@ class User {
     }
 
     async create() {
-        // const salt = randomBytes(16).toString('hex');
         this.validateFields();
 
         if (this.email) {
@@ -33,14 +22,12 @@ class User {
                 throw new ErrorGenerator(400, errorsDefault.emailUsed);
             }
         }
-
+        
         const result = await TableUser.insert({
             name: this.name,
             email: this.email,
             password: this.password,
             photo: this.photo,
-            // password: encryptWithSalt(this.password, salt),
-            // salt: salt,
         });
 
         this.id = result.id;
@@ -48,7 +35,6 @@ class User {
 
     async findStoredTokenByID() {
         const foundUser = await TableUser.getId(this.id);
-        // this.validateUser(this.password, foundUser.salt, foundUser.password);
         this.name = foundUser.name;
         this.email = foundUser.email;
         this.password = foundUser.password;
@@ -59,7 +45,6 @@ class User {
 
     async load() {
         const foundUser = await TableUser.getEmail(this.email, true);
-        // this.validateUser(this.password, foundUser.salt, foundUser.password);
         this.name = foundUser.name;
         this.email = foundUser.email;
         this.password = foundUser.password;
@@ -90,10 +75,6 @@ class User {
                 } else {
                     dataToUpdate[attribute] = value;
                 }
-                // if (attribute === 'password') {
-                // const passwordHashed = encryptWithSalt(value, user.salt);
-                // dataToUpdate[attribute] = passwordHashed;
-                // }
             }
         }
         console.log(dataToUpdate);
@@ -109,7 +90,7 @@ class User {
     }
 
     validateFields() {
-        const fields = ['name', 'password', 'photo', 'email'];
+        const fields = ['name', 'password', 'email'];
 
         fields.forEach((field) => {
             const value = this[field];
@@ -128,14 +109,6 @@ class User {
     async updateToken(token) {
         await TableUser.update(this.id, { token });
     }
-
-    // validateUser(password, salt, passwordHashed) {
-    //     if (password === decryptWithSalt(passwordHashed, salt)) {
-    //         return true;
-    //     } else {
-    //         throw new ErrorGenerator(400, errorsDefault.userLoginFail);
-    //     }
-    // }
 }
 
 module.exports = User;
